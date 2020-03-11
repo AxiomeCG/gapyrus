@@ -331,7 +331,6 @@ void sample_is_point_in_sphere() {
   // a sphere
   auto sphere = pt1 ^ pt2 ^ pt3 ^ pt4;
 
-
   // a point
   auto point = pt5; //^ c3ga::ei<double>();
 
@@ -341,7 +340,7 @@ void sample_is_point_in_sphere() {
   auto pointIsInSphere = scalar <= 0;
   std::cout << " Scalar = " << scalar << std::endl;
 
-  if (pointIsInSphere){
+  if (pointIsInSphere) {
     viewer.push(sphere, "sphere", 0, 200, 0);
   } else {
     viewer.push(sphere, "sphere", 200, 0, 0);
@@ -376,19 +375,113 @@ void sample_draw_sphere_from_point_and_radius() {
 
   c3ga::Mvec<double> pt1 = c3ga::point<double>(1, 1, 1);
   auto radius = 2.;
-  auto dualSphere = pt1 - ((radius*radius)/2 * c3ga::ei<double>());
+  auto dualSphere = pt1 - ((radius * radius) / 2 * c3ga::ei<double>());
 
   auto sphere = !dualSphere;
 
-  std::cout << c3ga::whoAmI(sphere)<< std::endl;
-  viewer.push(pt1, "pt1",255, 0, 0);
+  std::cout << c3ga::whoAmI(sphere) << std::endl;
+  viewer.push(pt1, "pt1", 255, 0, 0);
 
-  viewer.push(sphere, "sphere",255, 255, 0);
+  viewer.push(sphere, "sphere", 255, 255, 0);
 
   viewer.display();
   viewer.render("output.html");
 }
+
+void sample_generate_tetraedre() {
+  Viewer_c3ga viewer;
+  c3ga::Mvec<double> ei = c3ga::ei<double>();
+
+  c3ga::Mvec<double> pt1 = c3ga::point<double>(0, 0, 0);
+  c3ga::Mvec<double> pt2 = c3ga::point<double>(0.5, 1, 0);
+  c3ga::Mvec<double> pt3 = c3ga::point<double>(1, 0, 0);
+  c3ga::Mvec<double> pt4 = c3ga::point<double>(0.5, 0.5, 1);
+  viewer.push(pt1, "pt1", 255, 255, 0);
+  viewer.push(pt2, "pt2", 255, 255, 0);
+  viewer.push(pt3, "pt3", 255, 255, 0);
+  viewer.push(pt4, "pt4", 255, 255, 0);
+  c3ga::Mvec<double> line1 = pt1 ^ pt2 ^ ei;
+  c3ga::Mvec<double> line2 = pt1 ^ pt3 ^ ei;
+  c3ga::Mvec<double> line3 = pt1 ^ pt4 ^ ei;
+  c3ga::Mvec<double> line4 = pt2 ^ pt3 ^ ei;
+  c3ga::Mvec<double> line5 = pt2 ^ pt4 ^ ei;
+  c3ga::Mvec<double> line6 = pt3 ^ pt4 ^ ei;
+  viewer.push(line1, 0, 0, 255);
+  viewer.push(line2, 0, 0, 255);
+  viewer.push(line3, 0, 0, 255);
+  viewer.push(line4, 0, 0, 255);
+  viewer.push(line5, 0, 0, 255);
+  viewer.push(line6, 0, 0, 255);
+
+  viewer.display();
+  viewer.render("output.html");
+}
+
+
+void test() {
+  Viewer_c3ga viewer;
+  c3ga::Mvec<double> ei = c3ga::ei<double>();
+
+
+  c3ga::Mvec<double> pt1 = c3ga::point<double>(0, 0, 0);
+  c3ga::Mvec<double> pt2 = c3ga::point<double>(0.5, 1, 0);
+  c3ga::Mvec<double> pt3 = c3ga::point<double>(1, 0, 0);
+  c3ga::Mvec<double> line1 = pt1 ^ pt2 ^ ei;
+
+
+  viewer.push(line1, "line", 255, 255, 0);
+  viewer.push(pt3, "pt3", 0, 255, 0);
+
+  //viewer.push((!(line1 | (pt3^ei))), "dot", 0, 255, 255);
+  //viewer.push(!((!line1) | pt3), "dot", 0, 255, 255);
+
+
+  viewer.display();
+  viewer.render("output.html");
+}
+
+void sample_plane_cross_sphere() {
+  Viewer_c3ga viewer;
+  c3ga::Mvec<double> ei = c3ga::ei<double>();
+
+
+  c3ga::Mvec<double> pt1 = c3ga::point<double>(0, 0, 0);
+  c3ga::Mvec<double> pt2 = c3ga::point<double>(0.5, 1, 0);
+  c3ga::Mvec<double> pt3 = c3ga::point<double>(0.5, 0.5, 1);
+
+  c3ga::Mvec<double> pt4 = c3ga::point<double>(3, 7, 5);
+
+  c3ga::Mvec<double> plane = pt1 ^ pt2 ^ pt3^ ei;
+
+  auto r = 1;
+  auto dualSphere = pt4 - ((r * r) / 2 * c3ga::ei<double>());
+
+  auto sphere = !dualSphere;
+
+  c3ga::Mvec<double> intersect = !((!plane) ^ (!sphere));
+  c3ga::Mvec<double> center;
+  c3ga::Mvec<double> direction;
+
+  double radius = (intersect | intersect);
+
+  std::cout << c3ga::whoAmI(intersect) << std::endl;
+  std::cout << radius << std::endl;
+  viewer.push(plane, 0, 0, 255);
+  viewer.push(sphere, 255, 0, 255);
+  viewer.push(intersect, 0, 255, 0);
+  viewer.display();
+  viewer.render("output.html");
+}
+
 ///////////////////////////////////////////////////////////
+
+/**
+ *
+ * | inner product
+ * * geometric product
+ *
+ *
+ */
 int main() {
 
   // sample1();
@@ -407,8 +500,14 @@ int main() {
 
   // sample_scale();
 
-  //sample_is_point_in_sphere();
+  // sample_is_point_in_sphere();
 
-  sample_draw_sphere_from_point_and_radius();
+  // sample_draw_sphere_from_point_and_radius();
+
+  // sample_generate_tetraedre();
+
+  // sample_plane_cross_sphere();
+
+  test();
   return 0;
 }
