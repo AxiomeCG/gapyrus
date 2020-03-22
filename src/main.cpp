@@ -577,42 +577,6 @@ void sampleLeftOrRightToCircle(){
   viewer.render("output.html");
 }
 
-void sampleLeftOrRightToCircle2(){
-  Viewer_c3ga viewer;
-  c3ga::Mvec<double> ei = c3ga::ei<double>();
-
-  c3ga::Mvec<double> pt = c3ga::point<double>(1, 1, 1);
-  c3ga::Mvec<double> ptBis = c3ga::point<double>(1, 1, -1);
-
-
-  c3ga::Mvec<double> pt1 = c3ga::point<double>(0, 1, 0);
-  c3ga::Mvec<double> pt2 = c3ga::point<double>(-0.5, -0.5, 0);
-  c3ga::Mvec<double> pt3 = c3ga::point<double>(0.5, -0.5, 0);
-
-
-
-  c3ga::Mvec<double> center = c3ga::point<double>(0, 0, 0);
-  double radius = 2.;
-
-  c3ga::Mvec<double> circle = !;
-
-  c3ga::Mvec<double> dotProduct = (pt^center)|(!circle);
-  c3ga::Mvec<double> dotProductBis = (ptBis^center)|(!circle);
-
-
-  std::cout<< c3ga::whoAmI(dotProduct) << dotProduct << std::endl;
-  std::cout<< c3ga::whoAmI(dotProductBis) << dotProductBis << std::endl;
-
-  viewer.push(circle, "circle", 255, 0 ,0);
-  viewer.push(pt, "pt", 255, 0 ,0);
-  viewer.push(ptBis,"ptBis", 255, 0 ,0);
-  viewer.push(dotProduct,"intersect", 0,255,0);
-  viewer.push(dotProductBis,"intersect bis", 0, 0, 255);
-
-  viewer.display();
-  viewer.render("output.html");
-}
-
 bool isImaginaryCircle(c3ga::Mvec<double> multiVector) {
   return c3ga::whoAmI(std::move(multiVector)) ==
          "imaginary circle (dual pair point)";
@@ -1062,8 +1026,8 @@ int main() {
 
   //sample_grossissement_sphere(150);
 
-  sampleLeftOrRightToCircle();
+  //sampleLeftOrRightToCircle();
 
-  //sample_grossissement_sphere_with_circles(10000);
+  sample_grossissement_sphere_with_circles(100000);
   return 0;
 }
