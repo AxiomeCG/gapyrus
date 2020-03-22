@@ -1,27 +1,51 @@
+---
+title: "Rapport - Squelette d'objets 3D en C3Ga"
+author: 'Adam NAILI'
+output:
+  pdf_document :
+    keep_tex: true
+    number_sections: true
+header-includes:
+  \usepackage{booktabs}
+  \usepackage{longtable}
+  \usepackage{array}
+  \usepackage{float}
+  \usepackage{caption}
+  \floatplacement{figure}{H}
+---
+
+\newpage
+
+\tableofcontents
+
+\newpage
+
 # Introduction
 Ce rapport va traiter de l'utilisation de l'algèbre géométrique pour la construction de squelettes topologiques de formes 3D.
 
 Voici un exemple de squelettisation obtenue avec des techniques classiques:
+
 ![Squelettisation d'un mesh de cheval - https://doc.cgal.org/latest/Surface_mesh_skeletonization](https://doc.cgal.org/latest/Surface_mesh_skeletonization/main_image_suggestion.png)
 
 J'ai eu l'idée de ce sujet en suivant le cours de Géométrie discrète du semestre 1. Nous avons vu le principe d'axe médian et ses différentes définitions (feu d'un champ, grossissement de boules maximales...) et j'ai voulu explorer ce que cela pourrait donner en algèbre géométrique avec une métrique C3Ga.
 
-## Exposition du problème
+# Exposition du problème
 
 Il existe différentes définitions du squelette topologique. Pour certains auteurs, la notion de squelette est interchangeable avec la notion d'axe médian. D'autres font la séparation entre les deux notions. Pour ce document les deux termes seront équivalents. En effet, la base de mon travail réside dans la recherche de l'axe médian, que j'appelle le plus souvent squelette.
 De la même manière, certains auteurs rapprochent l'usage du terme "Amincissement" pour la squelettisation et d'autres auteurs en font deux notions différentes. On parlera ici de la même manière, de squelettisation ou d'amincissement qui désigneront la même chose dans le rapport.
 
 Voici les différentes définitions sur lesquels je me suis appuyé pour effectuer l'exploration :
 
-### Points d'extinction du modèle de propagation du feu.
+## Points d'extinction du modèle de propagation du feu.
 
 Prenons le cas 2D pour simplifier la définition. 
 Le squelette est construit à partir d'un modèle de propagation de feu. Imaginons un champ d'herbe de la forme de notre forme 2D. On allume un feu en chaque bord. Le squelette est constitué de tous les points d'extinction du feu. 
 
 ![Démonstration du feu de champ](./images/grassfire.png)
+
 Sur ce schéma, la ligne grasse représente le squelette résultant d'un rectangle. La ligne en pointillés représente le front de flammes qui progresse. Quand deux fronts de flammes se rejoignent il s'agit d'un point d'extinction.
 
-### Centres de boules maximales/disques maximaux
+## Centres de boules maximales/disques maximaux
 
 En 2D nous utilisons des disques mais la méthode reste la même qu'en 3D où les disques sont des boules.
 
@@ -31,7 +55,7 @@ Le centre de chaque boule maximale forme les points de notre squelette.
 
 ![Squelette construit à partir de disques maximaux](https://d3i71xaburhd42.cloudfront.net/cfbbe1f7aeda6ad4d112b391579a2cf16dce95ff/3-Figure1-1.png)
 
-### Centre de boules bitangentes/disques bitangents
+## Centres de boules bitangentes/disques bitangents
 
 C'est une définition assez proche de la précédente. En effet lorsque qu'une boule est maximale elle touche l'objet en au moins 2 points. Le grossissement d'une boule jusqu'à ce qu'elle touche l'objet peut alors être utilisé pour définir un squelette. Ainsi, en récupérant le centre de chaque boule bitangente (ou plus que bitangente), on obtient l'axe médian. 
 
@@ -116,7 +140,7 @@ rayon <- 0.01
 Tant que listePointATester n'est pas vide:
     listeCentreSansIntersection <- ListeVide()
     Pour chaque centre dans listePointATester:
-        sphereDuale <- centre - (rayon²/2) * ei; 
+        sphereDuale <- centre - (rayon²/2) * ei
         listeIntersectionReelle <- ListeVide()
         
         Pour chaque cercle dans la liste des cercles approximant les faces:
@@ -143,9 +167,55 @@ Voici le type de résultat que l'on attend pour un squelette de tétraèdre :
 
 ![Squelette d'un tétraèdre](https://i.pinimg.com/originals/88/a8/78/88a87842f21c092b549514e1f45afd26.jpg)
 
+Un autre schéma que j'ai réalisé peut permettre de visualiser le résultat attendu :
+
+![Squelette d'un tétraèdre par assemblage de formes](images/skeletonFinal.png)
+
+![Squelette obtenu via l'algorithme décrit plus haut (vue de profil)](images/skeleton1.png)
+
+![Squelette obtenu via l'algorithme décrit plus haut (vue de dessus)](images/skeleton2.png)
+
+Chaque point vert représente le centre d'une boule qui avait au moins 2 points de contact avec le modèle 3D.
+
+Le squelette attendu est bien présent. Nous discuterons dans les limites de cette technique dans la partie suivante, qui explique pourquoi le résultat montré ici n'est pas parfait.
+
+Le résultat a été obtenu à partir de 100 000 points aléatoires répondant au critère d'appartenance.
+
+Le temps de génération de cet algorithme est assez grand. Pour une forme aussi simple, il faut quelques minutes. 
 
 # Limites
 
+La limite la plus importante de cet algorithme est la présence de points extérieures au maillage. Pourtant, tel que le critère d'appartenance est décrit, ces points respectent l'appartenance. En effet, le problème vient de l'approximation des triangles de notre maillage par leurs cercles circonscrits.
+
+Les cercles "débordent" par rapport aux triangles et ces excroissances représentes des surfaces de collisions possibles avec la ligne tracée lors de la sélection des points apparentant à la forme. D'autres critères d'appartenance ont été testés en utilisant notamment l'ordre des points de construction pour l'orientation des cercles afin de définir un intérieur et un extérieur mais elle mène à la même problématique.
+
+Ces points peuvent potentiellement être éliminé lors du grossissement mais il subsiste tout de même des points qui en grossissant vont avoir deux intersections réelles avec deux excroissances comme le monde ce schéma :
+
+![Explication de la présence de points à l'extérieur de la forme 3D](images/excroissanceExplication.png)
+
+On comprend donc pourquoi des points à l'extérieur subsistent malgré les critères de sélection.
+
+Le plus gros problème de ce comportement est que l'augmentation du nombre de points favorisent mécaniquement l'apparition de ce genre de points qui rendent le squelette résultant moins lisible et moins exploitable. On aimerait augmenter le nombre de points pour avoir un squelette encore plus fidèle.
+
 # Extensions possibles
 
+Suite aux limites que j'ai pu découvrir en réalisant mon projet, j'ai décidé de mettre de côté certaines fonctionnalités que j'avais prévu au départ. Dans le cas où il y aurait une meilleure méthode pour exclure les points parasites qui se trouvent à l'extérieur du tétraèdre, on pourrait imaginer un parser de fichier d'extension .obj qui décrit un ensemble de points 3D de notre maillage. Le principe de création du squelette n'est qu'une généralisation de ce que j'ai réalisé avec le tétraèdre. Chaque triangle du maillage doit être transformé en cercle C3Ga et réaliser les algorithmes décrits plus haut. 
+
+
+Un autre problème viendrait de cette amélioration. Juste pour la génération du squelette du tétraèdre, le temps de génération était assez long. L'utilisation de mesh complexe peut en théorie demander énormément de points afin d'avoir un squelette fidèle. 
+
+
+Une possibilité pour pouvoir améliorer les performances de l'algorithme est de faire une première passe sur les points sélectionnés et d'enregistrer quelles sont les deux faces les plus proches.
+ Dans mon algorithme actuel, je teste toutes les faces pour tous les points à chaque grossissement, ce qui rend les premiers tours de boucles très gourmands et qui tend à s'accélerer avec les points qui finissent par être écartés ou au contraire ajouter à la liste des centres de l'axe médian.
+ 
+ 
+ Cette première passe permet donc de savoir quelles sont les deux faces à tester et ce pour chaque point en fonction de sa proximité. Ce qui fait que l'on teste plus que deux faces par point considéré et par grossissement ce qui augmente drastiquement les performances sur des maillages complexes avec de nombreuses faces. 
+ 
+ Une visualisation avec OpenGL peut être également envisagée avec une caméra mobile afin d'explorer le squelette. L'affichage du maillage en lui même est très standard par l'affichage de triangles. Ensuite il suffirait de charger une sphère élémentaire dans un VBO OpenGL et de le translater aux différentes positions calculées pour l'axe médian.
+ 
+
 # Conclusion
+
+Ce projet a été l'occasion d'explorer l'utilisation de l'algèbre C3Ga afin de calculer les points appartenant à l'axe médian. Il a été finalement très naturel d'exprimer la définition choisi d'axe médian dans le paradigme de l'algèbre géométrique. Les résultats obtenus même si imparfaits montrent que la méthode fonctionne partiellement. 
+
+Différents champs sont à explorer pour améliorer la méthode. Tout d'abord, en trouver une qui permet d'évacuer les points extérieurs à l'objet qui sont générés par les cercles qui représentent les faces triangulaires du maillage et qui gènent l'observation et l'exploitation du squelette. Ensuite, l'amélioration de l'algorithme qui permettrait d'augmenter les performances notamment pour l'exploitation de la technique sur des maillages complexes. 
