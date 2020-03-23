@@ -566,6 +566,6 @@ int main() {
 
   //sampleLeftOrRightToCircle();
 
-  generate_skeleton_from_tetrahedra(10000);
+  generate_skeleton_from_tetrahedra(1000000);
   return 0;
 }
