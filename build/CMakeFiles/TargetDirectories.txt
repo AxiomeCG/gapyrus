@@ -1,3 +1,0 @@
-/home/adam/Bureau/gapyrus/build/CMakeFiles/rebuild_cache.dir
-/home/adam/Bureau/gapyrus/build/CMakeFiles/ga_view.dir
-/home/adam/Bureau/gapyrus/build/CMakeFiles/edit_cache.dir
