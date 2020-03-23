@@ -14,6 +14,11 @@ const double epsilon = 1e-6;
 
 ///////////////////////////////////////////////////////////
 
+
+/**
+ * Sample to test if a point is in a circle
+ * @deprecated Legacy function
+ */
 void sample_is_point_in_sphere() {
   Viewer_c3ga viewer;
 
@@ -74,6 +79,10 @@ void sample_is_point_in_sphere() {
   viewer.render("output.html");
 }
 
+/**
+ * Proof of concept: generates a sphere from a point and a radius
+ * @deprecated Legacy function
+ */
 void sample_draw_sphere_from_point_and_radius() {
   Viewer_c3ga viewer;
 
@@ -92,6 +101,10 @@ void sample_draw_sphere_from_point_and_radius() {
   viewer.render("output.html");
 }
 
+/**
+ * Sample to test the generation of the tetrahedra
+ * @deprecated Legacy function
+ */
 void sample_generate_tetraedre() {
   Viewer_c3ga viewer;
   c3ga::Mvec<double> ei = c3ga::ei<double>();
@@ -121,6 +134,10 @@ void sample_generate_tetraedre() {
   viewer.render("output.html");
 }
 
+/**
+ * Sample to generate an intersection between a plane and a sphere
+ * @deprecated Legacy function
+ */
 void sample_plane_cross_sphere() {
   Viewer_c3ga viewer;
   c3ga::Mvec<double> ei = c3ga::ei<double>();
@@ -153,6 +170,10 @@ void sample_plane_cross_sphere() {
   viewer.render("output.html");
 }
 
+/**
+ * Sample to generate a tetraedre and the intersection of a sphere
+ * @deprecated Legacy function
+ */
 void sample_generate_tetraedre_cross_sphere() {
   Viewer_c3ga viewer;
   c3ga::Mvec<double> ei = c3ga::ei<double>();
@@ -229,6 +250,10 @@ void sample_generate_tetraedre_cross_sphere() {
 
 }
 
+/**
+ * Proof of concept : find if a point is to the left or to the right of a circle
+ * @deprecated Legacy function
+ */
 void sampleLeftOrRightToCircle(){
   Viewer_c3ga viewer;
   c3ga::Mvec<double> ei = c3ga::ei<double>();
@@ -261,26 +286,52 @@ void sampleLeftOrRightToCircle(){
   viewer.render("output.html");
 }
 
+/**
+ * Returns true if the multivector is an imaginary circle
+ * @param multiVector multivector to test
+ * @return true if the multivector is an imaginary circle
+ */
 bool isImaginaryCircle(c3ga::Mvec<double> multiVector) {
   return c3ga::whoAmI(std::move(multiVector)) ==
          "imaginary circle (dual pair point)";
 }
 
+/**
+ * Returns true if the multivector is a real circle
+ * @param multiVector multivector to test
+ * @return true if the multivector is a real circle
+ */
 bool isRealCircle(c3ga::Mvec<double> multiVector) {
   return c3ga::whoAmI(std::move(multiVector)) ==
          "circle (imaginary dual pair point)";
 }
 
+/**
+ * Returns true if the multivector is a real pair point
+ * @param multiVector multivector to test
+ * @return true if the multivector is a real pair point
+ */
 bool isRealPairPoint(c3ga::Mvec<double> multiVector) {
   return c3ga::whoAmI(std::move(multiVector)) ==
       "pair point (imaginary dual circle)";
 }
 
+/**
+ * Returns true if the multivector is a tangent bi vector
+ * @param multiVector multivector to test
+ * @return true if the multivector is a tangent bi vector
+ */
 bool isTangentBiVector(c3ga::Mvec<double> multiVector) {
   return c3ga::whoAmI(std::move(multiVector)) ==
          "tangent bivector (dual tangent vector)";
 }
 
+/**
+ * Utility tools that generate a random point between two bounds given in argument
+ * @param minorBound Minor bound for the random coordinates
+ * @param majorBound Major bound for the random coordinates
+ * @return A random point
+ */
 c3ga::Mvec<double> randomPointBetween(const double minorBound,
                                       const double majorBound) {
   assert(minorBound < majorBound);
@@ -299,7 +350,12 @@ c3ga::Mvec<double> randomPointBetween(const double minorBound,
                      uniformRealDistribution(generator));
 }
 
-void sample_grossissement_sphere(int n) {
+/**
+ * First attempt to grow balls inside a tetrahedra.
+ * @deprecated Legacy function
+ * @param n Number of random points chosen for the centers of balls
+ */
+void sample_growing_sphere(int n) {
   Viewer_c3ga viewer;
   c3ga::Mvec<double> ei = c3ga::ei<double>();
 
@@ -410,6 +466,10 @@ void sample_grossissement_sphere(int n) {
 }
 
 
+/**
+ * Generates the skeleton of a tetrahedra by creating random growing balls inside the 3D object.
+ * @param n Number of inside random centers
+ */
 void generate_skeleton_from_tetrahedra(int n) {
   Viewer_c3ga viewer;
   c3ga::Mvec<double> ei = c3ga::ei<double>();
@@ -487,20 +547,10 @@ void generate_skeleton_from_tetrahedra(int n) {
     std::vector<c3ga::Mvec<double>> notIntersectingCenterList;
     for (const auto &center : toTestCenterList) {
       auto dualSphere = center - (((radius * radius) / 2) * c3ga::ei<double>());
-      //viewer.push(center, "center", 200, 0, 0);
-      // viewer.push(dualSphere, "DualSphere", (int)(255*radius)% 255,
-      // (int)(255*radius)% 255, (int)(255*radius)% 255);
       std::vector<c3ga::Mvec<double>> realIntersectionList;
 
       for (const auto &circle : circleList) {
         c3ga::Mvec<double> intersection = !((!circle) ^ (dualSphere));
-
-        // viewer.push(intersection, 0, 200, 0);
-        /*double intersectRadius;
-        c3ga::Mvec<double> intersectCenter, intersectDirection;
-        extractDualCircle(intersection.dual(), intersectRadius, intersectCenter,
-                          intersectDirection);*/
-        // viewer.push(intersectCenter, "intersect center", 200, 200, 0);
         if (isRealPairPoint(intersection))
           realIntersectionList.push_back(intersection);
         else {
@@ -512,22 +562,15 @@ void generate_skeleton_from_tetrahedra(int n) {
 
       if (realIntersectionList.size() >= 2) {
         // Result point
-        //std::cout << "OK" << std::endl;
         resultCenterList.push_back(center);
-        //viewer.push(dualSphere, 200,200,200);
       } else if (realIntersectionList.size() == 1) {
         // Not good point
-        //std::cout << "Not good point" << std::endl;
       } else if (realIntersectionList.empty()) {
         // Not big enough
-        //std::cout << "Empty" << std::endl;
         notIntersectingCenterList.push_back(center);
       }
 
     }
-    /*if (radius > 1.)
-      break;
-    std::cout << radius << std::endl;*/
     radius += 0.001;
     toTestCenterList = notIntersectingCenterList;
   }
@@ -558,14 +601,12 @@ int main() {
 
   // sample_plane_cross_sphere();
 
-  // test();
-
   // sample_generate_tetraedre_cross_sphere();
 
-  //sample_grossissement_sphere(150);
+  //sample_growing_sphere(150);
 
   //sampleLeftOrRightToCircle();
 
-  generate_skeleton_from_tetrahedra(1000000);
+  generate_skeleton_from_tetrahedra(10000);
   return 0;
 }
